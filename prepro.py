@@ -7,6 +7,8 @@ import pandas as pd
 from pandas import *
 import datetime
 from sklearn.linear_model import LinearRegression
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVR
 
 '''
 进行数据的预处理，对于训练集中缺少markdown信息的
@@ -111,11 +113,19 @@ def find_from_feature(store,date,feature,markdown):
                     feature[i][j] = markdown[j-4]
             return feature[i][2:-1]
 #训练线性模型
-def train_model(train_x,train_y,test_x):
+def linear_model(train_x,train_y,test_x):
     clf = LinearRegression()
     clf.fit(train_x,train_y)
     test_y = clf.predict(test_x)
     return test_y
+#用knn模型训练
+def knn_model(train_x,train_y,test_x,k):
+    clf = KNeighborsClassifier(n_neighbors=k,algorithm='kd_tree')
+    clf.fit(train_x,train_y)
+    test_y = clf.predict(test_x)
+    return test_y
+#用SVM模型训练
+def knn_model(train_x,tran_y,test_x,k)
 #对训练集中的markdown中的空值进行处理
 def nan_rep(trains):
     md = []
@@ -181,9 +191,16 @@ if __name__=="__main__":
             markdown = nan_rep(featuredata)
             print '构建第',i,'个商场第',dept,'个部门模型'
             train_x,train_y,test_x,dates = combi_train_feature(trains,tests,featuredata,markdown)
+            #设定knn的k值
+            k = 3
+            print len(train_x),len(test_x)
             if len(test_x) > 0:
-                test_y = train_model(train_x,train_y,test_x)
-                write(test_y,i,dept,dates)
+                if len(train_x) <k:
+                    test_y = knn_model(train_x,train_y,test_x,len(train_x))
+                    write(test_y,i,dept,dates)
+                else:
+                    test_y = knn_model(train_x,train_y,test_x,k)
+                    write(test_y,i,dept,dates)
         
 
             
